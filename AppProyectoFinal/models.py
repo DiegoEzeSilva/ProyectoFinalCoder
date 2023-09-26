@@ -7,6 +7,9 @@ class Empleado(models.Model):
     email = models.CharField(max_length=100)
     celular = models.IntegerField()
     
+    def __str__(self):
+        return f'{self.nombre} {self.apellido}'
+    
 class ProductosNuevos(models.Model):
     
     marca = models.CharField(max_length=50)
