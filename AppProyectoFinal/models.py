@@ -16,6 +16,10 @@ class ProductosNuevos(models.Model):
     version = models.CharField(max_length=50)
     largo = models.IntegerField()
     
+    def __str__(self):
+        return f'{self.marca} {self.version}'
+    
+    
 class ProductosUsados(models.Model):
     
     marca = models.CharField(max_length=50)

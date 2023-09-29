@@ -2,6 +2,9 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from .models import Empleado, ProductosNuevos, ProductosUsados, Equipamiento
 from .forms import EmpleadoFormulario, ProductosNuevosFormulario, ProductosUsadosFormulario, EquipamientosFormulario
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import DeleteView, UpdateView, CreateView
+from django.views.generic.list import ListView
 
 # Create your views here.
 
@@ -57,9 +60,6 @@ def equipamiento(req):
 
 def empleado_formulario(req):
     
-    print('method', req.method)
-    print('post', req.POST)
-    
     if req.method == 'POST' :
         
         miformulario = EmpleadoFormulario(req.POST)
@@ -81,9 +81,6 @@ def empleado_formulario(req):
         return render(req, "empleado_formulario.html", {"miformulario": miformulario})
     
 def productosnuevos_formulario(req):
-    
-    print('method', req.method)
-    print('post', req.POST)
     
     if req.method == 'POST' :
         
@@ -172,3 +169,84 @@ def buscar(req):
             return render(req, "resultadoBusqueda.html", {"empleado": empleado})
     else:
         return HttpResponse('No escribiste ningún apellido')
+    
+def listaEmpleados(req):
+    
+    empleados = Empleado.objects.all()
+    
+    return render(req, "leerEmpleados.html", {"empleados": empleados})
+
+def eliminarEmpleado(req, id):
+    
+    if req.method == 'POST':
+        
+        empleado = Empleado.objects.get(id=id)
+        empleado.delete()
+        
+        empleados = Empleado.objects.all()
+    
+        return render(req, "leerEmpleados.html", {"empleados": empleados})
+    
+    
+def editarEmpleado(req, id):
+    
+    empleado = Empleado.objects.get(id=id)
+    
+    if req.method == 'POST' :
+        
+        miformulario = EmpleadoFormulario(req.POST)
+        
+        if miformulario.is_valid():
+            
+            print(miformulario.cleaned_data)
+            data = miformulario.cleaned_data
+            
+            empleado.nombre = data["nombre"]
+            empleado.apellido = data["apellido"]
+            empleado.email = data["email"]
+            empleado.celular = data["celular"]
+            empleado.save()
+            return render(req, "inicio.html", {"mensaje": "Empleado actualizado con éxito"})
+        else:
+            return render(req, "inicio.html", {"mensaje": "Formulario inválido"})
+    else:
+        
+        miformulario = EmpleadoFormulario(initial={
+            "nombre": empleado.nombre,
+            "apellido": empleado.apellido,
+            "email": empleado.email,
+            "celular": empleado.celular,
+        })
+        
+        return render(req, "editarEmpleado.html", {"miformulario": miformulario, "id": empleado.id})
+
+
+class ProductosNuevosList(ListView):
+    model = ProductosNuevos
+    template_name = "ProductosNuevos_list.html"
+    context_object_name = "ProductosNuevos"
+    
+class ProductosNuevosDetail(DetailView):
+    model = ProductosNuevos
+    template_name = "ProductosNuevos_detail.html"
+    context_object_name = "ProductosNuevos"
+
+    
+class ProductosNuevosCreate(CreateView):
+    model = ProductosNuevos
+    template_name = "ProductosNuevos_create.html"
+    fields = ["marca", "version", "largo"]
+    success_url = "/AppProyectoFinal/"
+    
+class ProductosNuevosUpdate(UpdateView):
+    model = ProductosNuevos
+    template_name = "ProductosNuevos_update.html"
+    fields = ("__all__")
+    success_url = "/AppProyectoFinal/"
+    context_object_name = "ProductosNuevos"
+    
+class ProductosNuevosDelete(DeleteView):
+    model = ProductosNuevos
+    template_name = "ProductosNuevos_delete.html"
+    fields = ["__all__"]
+    success_url = "/AppProyectoFinal/"

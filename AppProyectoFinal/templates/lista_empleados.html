@@ -11,12 +11,9 @@
     <ul>
         
         {% for empleado in lista_empleados %}
-            <li>{{empleado.nombre}}</li>
+            <li>{{empleado.nombre} {empleado.apellido}}</li>
         {% endfor %}
-            
-
-
-
+    
 
     </ul>
 </body>
