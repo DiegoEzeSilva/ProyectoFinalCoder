@@ -26,7 +26,13 @@ class ProductosUsados(models.Model):
     version = models.CharField(max_length=50)
     largo = models.IntegerField()
     
+    def __str__(self):
+        return f'{self.marca} {self.version}'
+    
 class Equipamiento(models.Model):
     
     Nombre = models.CharField(max_length=50)
     descripcion = models.CharField(max_length=50)
+    
+    def __str__(self):
+        return f'{self.Nombre}'

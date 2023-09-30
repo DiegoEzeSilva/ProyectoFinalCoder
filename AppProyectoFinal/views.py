@@ -5,6 +5,10 @@ from .forms import EmpleadoFormulario, ProductosNuevosFormulario, ProductosUsado
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import DeleteView, UpdateView, CreateView
 from django.views.generic.list import ListView
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -31,6 +35,7 @@ def equipamiento(req, Nombre, descripcion):
     
     equipamiento = Equipamiento(Nombre=Nombre, descripcion=descripcion)
     equipamiento.save()
+
 
 def lista_empleados(req):
     
@@ -170,6 +175,7 @@ def buscar(req):
     else:
         return HttpResponse('No escribiste ningún apellido')
     
+@login_required
 def listaEmpleados(req):
     
     empleados = Empleado.objects.all()
@@ -226,27 +232,144 @@ class ProductosNuevosList(ListView):
     template_name = "ProductosNuevos_list.html"
     context_object_name = "ProductosNuevos"
     
-class ProductosNuevosDetail(DetailView):
+class ProductosNuevosDetail(LoginRequiredMixin, DetailView):
     model = ProductosNuevos
     template_name = "ProductosNuevos_detail.html"
     context_object_name = "ProductosNuevos"
 
     
-class ProductosNuevosCreate(CreateView):
+class ProductosNuevosCreate(LoginRequiredMixin, CreateView):
     model = ProductosNuevos
     template_name = "ProductosNuevos_create.html"
     fields = ["marca", "version", "largo"]
     success_url = "/AppProyectoFinal/"
     
-class ProductosNuevosUpdate(UpdateView):
+class ProductosNuevosUpdate(LoginRequiredMixin, UpdateView):
     model = ProductosNuevos
     template_name = "ProductosNuevos_update.html"
     fields = ("__all__")
     success_url = "/AppProyectoFinal/"
     context_object_name = "ProductosNuevos"
     
-class ProductosNuevosDelete(DeleteView):
+class ProductosNuevosDelete(LoginRequiredMixin, DeleteView):
     model = ProductosNuevos
     template_name = "ProductosNuevos_delete.html"
     fields = ["__all__"]
     success_url = "/AppProyectoFinal/"
+    
+    
+
+class ProductosUsadosList(ListView):
+    model = ProductosUsados
+    template_name = "ProductosUsados_list.html"
+    context_object_name = "ProductosUsados"
+    
+class ProductosUsadosDetail(LoginRequiredMixin, DetailView):
+    model = ProductosUsados
+    template_name = "ProductosUsados_detail.html"
+    context_object_name = "ProductosUsados"
+
+class ProductosUsadosCreate(LoginRequiredMixin, CreateView):
+    model = ProductosUsados
+    template_name = "ProductosUsados_create.html"
+    fields = ["marca", "version", "largo"]
+    success_url = "/AppProyectoFinal/"
+    
+class ProductosUsadosUpdate(LoginRequiredMixin, UpdateView):
+    model = ProductosUsados
+    template_name = "ProductosUsados_update.html"
+    fields = ("__all__")
+    success_url = "/AppProyectoFinal/"
+    context_object_name = "ProductosUsados"
+    
+class ProductosUsadosDelete(LoginRequiredMixin, DeleteView):
+    model = ProductosUsados
+    template_name = "ProductosUsados_delete.html"
+    fields = ["__all__"]
+    success_url = "/AppProyectoFinal/"
+    
+
+class EquipamientoList(ListView):
+    model = Equipamiento
+    template_name = "Equipamiento_list.html"
+    context_object_name = "Equipamiento"
+    
+class EquipamientoDetail(LoginRequiredMixin, DetailView):
+    model = Equipamiento
+    template_name = "Equipamiento_detail.html"
+    context_object_name = "Equipamiento"
+
+    
+class EquipamientoCreate(LoginRequiredMixin, CreateView):
+    model = Equipamiento
+    template_name = "Equipamiento_create.html"
+    fields = ["Nombre", "descripcion"]
+    success_url = "/AppProyectoFinal/"
+    
+class EquipamientoUpdate(LoginRequiredMixin, UpdateView):
+    model = Equipamiento
+    template_name = "Equipamiento_update.html"
+    fields = ("__all__")
+    success_url = "/AppProyectoFinal/"
+    context_object_name = "Equipamiento"
+    
+class EquipamientoDelete(LoginRequiredMixin, DeleteView):
+    model = Equipamiento
+    template_name = "Equipamiento_delete.html"
+    fields = ["__all__"]
+    success_url = "/AppProyectoFinal/"
+
+
+
+def loginView(req):
+    
+    if req.method == "POST":
+        
+        miformulario = AuthenticationForm(req, data=req.POST)
+        
+        if miformulario.is_valid():
+            
+            data = miformulario.cleaned_data
+            usuario = data["username"]
+            psw = data["password"]
+            
+            user = authenticate(username=usuario, password=psw)
+            
+            if user:
+                login(req, user)          
+                return render(req, "inicio.html", {"mensaje": f"Bienvenido {usuario}"})
+            else:
+                return render(req, "inicio.html", {"mensaje": "Datos incorrectos"})
+        
+        else:
+            return render(req, "inicio.html", {"mensaje": "Formulario inválido"})
+            
+    else:
+        
+        miformulario = AuthenticationForm()
+        return render(req, "login.html", {"miformulario": miformulario})
+    
+def register(req):
+    
+    if req.method == "POST":
+        
+        miformulario = UserCreationForm(req.POST)
+        
+        if miformulario.is_valid():
+            
+            data = miformulario.cleaned_data
+            
+            usuario = data["username"]
+            
+            miformulario.save()       
+            
+            return render(req, "inicio.html", {"mensaje": f"Usuario {usuario} creado con éxito!"})
+        
+        else:
+            return render(req, "inicio.html", {"mensaje": "Formulario inválido"})
+            
+    else:
+        
+        miformulario = UserCreationForm()
+        return render(req, "registro.html", {"miformulario": miformulario})
+

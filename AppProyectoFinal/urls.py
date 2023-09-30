@@ -1,5 +1,6 @@
 from django.urls import path
-from AppProyectoFinal.views import * 
+from AppProyectoFinal.views import *
+from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
     path('agrega-empleado/<nombre>/<apellido>/<email>/<celular>', empleado),
@@ -23,4 +24,17 @@ urlpatterns = [
     path('CreaProductosNuevos/', ProductosNuevosCreate.as_view(), name='CrearProductosNuevos'),
     path('ActualizaProductosNuevos/<pk>', ProductosNuevosUpdate.as_view(), name='ActualizarProductosNuevos'),
     path('EliminaProductosNuevos/<pk>', ProductosNuevosDelete.as_view(), name='EliminarProductosNuevos'),
+    path('login/', loginView, name='Login'),
+    path('registrar/', register, name='Registrar'),
+    path('logout/', LogoutView.as_view(template_name="inicio.html"), name='Logout'),
+    path('ListaProductosUsados/', ProductosUsadosList.as_view(), name='ListaProductosUsados'),
+    path('DetalleProductosUsados/<pk>', ProductosUsadosDetail.as_view(), name='DetalleProductosUsados'),
+    path('CreaProductosUsados/', ProductosUsadosCreate.as_view(), name='CrearProductosUsados'),
+    path('ActualizaProductosUsados/<pk>', ProductosUsadosUpdate.as_view(), name='ActualizarProductosUsados'),
+    path('EliminaProductosUsados/<pk>', ProductosUsadosDelete.as_view(), name='EliminarProductosUsados'),
+    path('ListaEquipamiento/', EquipamientoList.as_view(), name='ListaEquipamiento'),
+    path('DetalleEquipamiento/<pk>', EquipamientoDetail.as_view(), name='DetalleEquipamiento'),
+    path('CreaEquipamiento/', EquipamientoCreate.as_view(), name='CrearEquipamiento'),
+    path('ActualizaEquipamiento/<pk>', EquipamientoUpdate.as_view(), name='ActualizarEquipamiento'),
+    path('EliminaEquipamiento/<pk>', EquipamientoDelete.as_view(), name='EliminarEquipamiento'),
 ]
